@@ -3,7 +3,7 @@
   "version": "1.0",
   "manifest_version": 2,
   "content_scripts": [{
-      "matches": ["http://aragon.schoolloop.com/progress_report/*"],
+      "matches": ["https://aragon.schoolloop.com/progress_report/*"],
       "js": ["jquery-2.1.4.min.js", "contentscript.js"]
   }]
 }
