@@ -69,17 +69,15 @@ $(document).on('ready',function(){
 	});
 
 
-	$("#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr > td:nth-child(4)").each(function(){
+	$(ASSIGNMENT_TABLE_SCORE_CSS_PATH).each(function(){
 		//$(this).attr('contentEditable', 'true');
 		var score=0;
 		var max_score=0;
-		console.log($(this).text());
 		var t = findScores($(this).text());
 		score=t[0];
 		max_score=t[1];
-		console.log(score, max_score);
+
 		$(this).append('<form><input type="number" name="score" style="width: 75px;" min="1"> / <input type="number" name="max_score" style="width: 75px;" min="1"></form>');
-		//#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr:nth-child(1) > td:nth-child(4) > form > input[type="number"]:nth-child(2)
 		$(this).find('input[name="score"]').val(parseInt(score));
 		$(this).find('input[name="score"]').text(score);
 
@@ -110,7 +108,6 @@ function updateGrade(){
 		if(isNaN(max_score)){
 			max_score = 0;
 		}
-		console.log(max_score);
 		cur_points += user_score;
 		max_points += max_score;
 		
@@ -121,7 +118,6 @@ function updateGrade(){
 		letter_grade = Math.min(letter_grade, grade_scale.length-1);
 		letter_grade = Math.max(letter_grade, 0);
 		letter_grade = Math.ceil(letter_grade);
-		console.log(letter_grade);
 
 		$(CLASS_LETTER_GRADE_CSS_PATH).text(((cur_points/max_points) * 100).toFixed(2) + "%");
 		$(CLASS_NUMBER_GRADE_CSS_PATH).text(grade_scale[letter_grade]);
