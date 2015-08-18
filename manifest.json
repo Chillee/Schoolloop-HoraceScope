@@ -5,5 +5,8 @@
   "content_scripts": [{
       "matches": ["https://aragon.schoolloop.com/progress_report/*"],
       "js": ["jquery-2.1.4.min.js", "contentscript.js"]
-  }]
+  }],
+   "web_accessible_resources": [
+    "new_assignment.html"
+  ]
 }
