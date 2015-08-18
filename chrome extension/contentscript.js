@@ -18,7 +18,7 @@ $(document).on('ready',function(){
 
 	var new_button = $('<input/>', { type: "button", id: "add_assignment_button", value: "Add New Assignment" });
 	$(ASSIGNMENT_TABLE_CSS_PATH).append(new_button); 
-
+	console.log("hi");
 	/*new_button = $('<input/>', { type: "button", id: "update_grade_button", value: "Update Your Grade" });
 	$(ASSIGNMENT_TABLE_HEADER_CSS_PATH).append(new_button);*/
 
@@ -129,7 +129,19 @@ function updateGrade(){
 }
 
 function startUpdateGrade(interval){
-	setInterval('updateGrade()', interval);
+	//setInterval('updateGrade()', interval);
+	$(document).keypress(function(e) {
+	    updateGrade();
+	    console.log("ayy");
+	});
+	$(document).click(function(e) { 
+		updateGrade();
+		console.log("test");
+	});
+	$(document).keyup(function(e) {
+	    updateGrade();
+	    console.log("lmao");
+	});
 }
 
 function findScores(text){
