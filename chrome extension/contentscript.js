@@ -1,38 +1,57 @@
 var GRADEBOOK_BODY_CSS_PATH = '#container_content > div.content_margin > table:nth-child(6)';
 
-var ASSIGNMENT_TABLE_HEADER_CSS_PATH = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1)';
-var ASSIGNMENT_TABLE_SCORE_CSS_PATH = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr > td:nth-child(4)';
-var ASSIGNMENT_TABLE_CSS_PATH = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody';
+var ASSIGNMENT_TABLE_HEADER_CSS_PATH 	= '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1)';
+var ASSIGNMENT_TABLE_SCORE_CSS_PATH		= '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr > td:nth-child(4)';
+var ASSIGNMENT_TABLE_CSS_PATH 			= '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody';
+
 
 var CLASS_LETTER_GRADE_CSS_PATH = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(4)';
 var CLASS_NUMBER_GRADE_CSS_PATH = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(2)';
 
-console.log("ayyy")
+var CATEGORIES_CSS_PATH = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div:nth-child(3) > div.module_content > table > tbody > tr:nth-child(n+2)';
+
+var limited_control = true;
+var categories = [];
 $(document).on('ready',function(){
 
 	var new_button = $('<input/>', { type: "button", id: "add_assignment_button", value: "Add New Assignment" });
 	$(ASSIGNMENT_TABLE_CSS_PATH).append(new_button); 
-	/*new_button = $('<input/>', { type: "button", id: "update_grade_button", value: "Update Your Grade" });
-	$(ASSIGNMENT_TABLE_HEADER_CSS_PATH).append(new_button);*/
+
+
 
 	$('#add_assignment_button').on('click', function(event){     //Adds a new assignment to the end of the assignments, loading html from new_assignment.html
 		event.preventDefault();
 
 		$(ASSIGNMENT_TABLE_CSS_PATH).append($('<tr>').load(chrome.extension.getURL("new_assignment.html"), function(){
-			$(".date").text("NEW");
-			$('.delete_assignment').last().on('click', function(event){
+			$(ASSIGNMENT_TABLE_CSS_PATH).find('.date').text("NEW");
+			$(ASSIGNMENT_TABLE_CSS_PATH).find('.delete_assignment').last().on('click', function(event){
 				console.log($(this).closest('tr'));
 				$(this).closest('tr').remove();
 			});
+			$(ASSIGNMENT_TABLE_CSS_PATH).find('select[name="category_name"]').html(output.join(''));
 		}));
 
 		$('#add_assignment_button').appendTo(ASSIGNMENT_TABLE_CSS_PATH);
+	});
 
-
+	$(CATEGORIES_CSS_PATH).each(function(){
+		var category = {};	
+		category["name"] = $(this).find('td.list_label_grey').text();
+		var weight = $(this).find('td:nth-child(2)').text();
+		weight = weight.substring(0, weight.length-1);
+		weight = parseFloat(weight)/100;
+		category["weight"] = weight;
+		category["score"] = $(this).find('td:nth-child(3)').text();
+		categories.push(category);
+	});
+	var output = [];
+	$.each(categories, function(idx, obj){
+	  output.push('<option value="'+ obj["name"] +'">'+ obj["name"] +'</option>');
 	});
 
 
-	$(ASSIGNMENT_TABLE_SCORE_CSS_PATH).each(function(){			//Adds editable forms to all current assignments, filling them in with their current grades
+
+	$(ASSIGNMENT_TABLE_SCORE_CSS_PATH).each(function(){			//Adds editable forms to original assignments, filling them in with their current grades
 		//$(this).attr('contentEditable', 'true');
 		var score=0;
 		var max_score=0;
@@ -40,9 +59,17 @@ $(document).on('ready',function(){
 		score=t[0];
 		max_score=t[1];
 
-		$(this).append('<form><input type="number" name="score" style="width: 40px;" min="0"> / <input type="number" name="max_score" style="width: 40px;" min="0"> <div class="assignment_percent" style="display:inline !important;"></div></form>');
+		$(this).append('<form>\
+			<input type="number" name="score" style="width: 40px;" min="0"> / <input type="number" name="max_score" style="width: 40px;" min="0"> \
+			<div class="assignment_percent" style="display:inline !important;"></div></form>');
+		if(limited_control){
+			$(this).find('input[name="max_score"]').prop('readonly', true);
+			if($(this).closest('tr').hasClass('highlight')){
+				$(this).find('input[name="max_score"]').css('background-color', '#faf6da');
+
+			}
+		}
 		var percent = $(this).find('form > div.assignment_percent');
-		
 		
 		$(this).find('input[name="score"]').val(parseInt(score));
 		$(this).find('input[name="score"]').text(score);
@@ -64,12 +91,20 @@ function calculateStuff(){			//Love you Andrew Carpenter
 function updateGrade(){
 	var cur_points = 0.0;
 	var max_points = 0.0;
-	$(ASSIGNMENT_TABLE_SCORE_CSS_PATH).each(function(){
-		var user_score = $(this).find('form > input[type="number"]:nth-child(1)').val();
-		var max_score = $(this).find('form > input[type="number"]:nth-child(2)').val();
-		var percent = $(this).find('form > div.assignment_percent');
+	$(ASSIGNMENT_TABLE_CSS_PATH +' > tr').each(function(){
+		var assignment_table_score = $(this).find('td:nth-child(4)');
+		var user_score = $(assignment_table_score).find('form > input[type="number"]:nth-child(1)').val();
+		var max_score = $(assignment_table_score).find('form > input[type="number"]:nth-child(2)').val();
+		var percent = $(assignment_table_score).find('form > div.assignment_percent');
+		var category = $(this).find('td:nth-child(1) > div > form > select').val();
+		//console.log($('#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr:nth-child(3) > td:nth-child(1) > div > form > select').val());
+		if(typeof category == 'undefined'){
+			category = $(this).find('td:nth-child(1) > div').contents().get(0).nodeValue.trim();
+		}
+		console.log(category);
+
+
 		percent.text(((user_score/max_score) * 100).toFixed(2) + "%");
-		console.log(parseFloat(user_score), parseFloat(max_score));
 		user_score = parseFloat(user_score);
 		max_score = parseFloat(max_score);
 		if(isNaN(user_score)){
@@ -99,11 +134,10 @@ function startUpdateGrade(){
 	//setInterval('updateGrade()', interval);
 	$(document).click(function(e) { 
 		updateGrade();
-		console.log("test");
 	});
 	$(document).keyup(function(e) {
+		e.preventDefault();
 	    updateGrade();
-	    console.log("lmao");
 	});
 }
 
