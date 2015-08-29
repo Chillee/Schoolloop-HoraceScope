@@ -36,7 +36,7 @@ function getCategoryInfo(category_element){
   weight = weight.substring(0, weight.length-1);
   weight = parseFloat(weight)/100;
   category['weight'] = weight;
-  category['score'] = $(category_element).find('td:nth-child(3)').text();
+  //category['score'] = $(category_element).find('td:nth-child(3)').text();
   categories[category['name']] = category;
   category_name_list.push(category['name']);
 }
@@ -131,10 +131,10 @@ function generateNumberGrade(user_points, max_points){
   $.each(user_points, function(idx, obj){
     if(is_weighted){
       grade_weighted += categories[idx]["weight"] * (obj/max_points[idx]);
-      total_weight += categories[idx]["weight"];
+      total_weight   += categories[idx]["weight"];
     } else {
-      user_points_unweighted += obj;
-      max_points_unweighted += max_points[idx];
+      user_points_unweighted  += obj;
+      max_points_unweighted   += max_points[idx];
     }
   });
   if(is_weighted){
@@ -163,24 +163,7 @@ function initPointObjectCategories(){
    return points;
 }
 
-function updateGrade(){
-  var user_points = initPointObjectCategories();
-  var max_points  = initPointObjectCategories();
 
-
-  $(ASSIGNMENT_TABLE_CSS_PATH +' > tr').each(function(){
-    var assignment = getAssignmentInfo($(this));
-    user_points[assignment['category']] += assignment['user_score'];
-    max_points[assignment['category']]  += assignment['max_score'];
-  });
-
-  var number_grade  = generateNumberGrade(user_points, max_points);
-  var letter_grade  = generateLetterGrade(number_grade);
-
-  $(CLASS_LETTER_GRADE_CSS_PATH).text((number_grade).toFixed(2) + "%");
-  $(CLASS_NUMBER_GRADE_CSS_PATH).text(letter_grade);
-
-}
 
 function startUpdateGrade(){
   //setInterval('updateGrade()', interval);
@@ -207,7 +190,6 @@ function findScores(text){
   }
   grade1 = grade1[0];
   var grade= grade1.substring(0, grade1.length-2);
-  //console.log(grade);
 
   var grade2 = scores.match(/((\/))+([0-9]|[" "]|[.])*/g);
   grade2 = grade2[0];
@@ -217,10 +199,45 @@ function findScores(text){
 
 function todayDate() {
     var today_date = new Date();
-    var myyear = today_date.getFullYear();
+    var myyear  = today_date.getFullYear();
     var mymonth = today_date.getMonth() + 1;
     var mytoday = today_date.getDate();
     return +mymonth+"/"+mytoday+"/"+myyear.toString().substr(2, 4);
+}
+
+function updateCategoryScore(category_element, user_points, max_points){
+  var name = $(category_element).find('td.list_label_grey').text();
+  console.log(user_points[name]/max_points[name]);
+  var grade = (user_points[name]/max_points[name]) * 100;
+  $(category_element).find('td:last-child').text(grade.toFixed(2) + '%');
+}
+
+//////////////////////////////////////////////////////////////////
+///////         Update Grade   ///////////////////////////////////
+//////////////////////////////////////////////////////////////////
+
+function updateGrade(){
+  var user_points = initPointObjectCategories();
+  var max_points  = initPointObjectCategories();
+
+
+  $(ASSIGNMENT_TABLE_CSS_PATH +' > tr').each(function(){
+    var assignment = getAssignmentInfo($(this));
+    user_points[assignment['category']] += assignment['user_score'];
+    max_points[assignment['category']]  += assignment['max_score'];
+  });
+
+  var number_grade  = generateNumberGrade(user_points, max_points);
+  var letter_grade  = generateLetterGrade(number_grade);
+
+  $(CATEGORIES_CSS_PATH).each(function(){
+    updateCategoryScore($(this), user_points, max_points);
+  })
+  //$(category_element).find('td:nth-child(3)').text();
+
+  $(CLASS_LETTER_GRADE_CSS_PATH).text((number_grade).toFixed(2) + "%");
+  $(CLASS_NUMBER_GRADE_CSS_PATH).text(letter_grade);
+
 }
 
 //////////////////////////////////////////////////////////////////
