@@ -66,8 +66,10 @@ function createEditableOriginalAssignment(assignment_element){
   score=t[0];
   max_score=t[1];
 
-  $(assignment_element).append('<form>\
-    <input type="number" name="score" style="width: 40px;" min="0"> / <input type="number" name="max_score" style="width: 40px;" min="0"> \
+  $(assignment_element).append('\
+    <form>\
+    <input type="number" name="score" style="width: 40px;" min="0"> /\
+     <input type="number" name="max_score" style="width: 40px;" min="0"> \
     <div class="assignment_percent" style="display:inline !important;"></div></form>');
   if(limited_control && (score!=0 || max_score!=0)){
     $(assignment_element).find('input[name="max_score"]').prop('readonly', true);
@@ -121,13 +123,12 @@ function getAssignmentInfo(assignment_element){
 }
 
 function generateNumberGrade(user_points, max_points){
-  var total_grade    = 0;
-  var grade_weighted = 0;
-  var total_weight   = 0;
+  var total_grade             = 0;
+  var grade_weighted          = 0;
+  var total_weight            = 0;
+  var user_points_unweighted  = 0;
+  var max_points_unweighted   = 0;
   $.each(user_points, function(idx, obj){
-    console.log(obj);
-    console.log(idx);
-    console.log(categories[idx]);
     if(is_weighted){
       grade_weighted += categories[idx]["weight"] * (obj/max_points[idx]);
       total_weight += categories[idx]["weight"];
