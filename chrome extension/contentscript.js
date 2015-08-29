@@ -9,13 +9,23 @@ var CLASS_LETTER_GRADE_CSS_PATH = '#container_content > div.content_margin > tab
 var CLASS_NUMBER_GRADE_CSS_PATH = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(2)';
 
 var CATEGORIES_CSS_PATH = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div:nth-child(3) > div.module_content > table > tbody > tr:nth-child(n+2)';
+var WEIGHTED_OR_UNWEIGHTED_CSS_PATH = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div:nth-child(3) > div.module_content > table > tbody > tr:nth-child(1) > td:nth-child(2)';
 
 var limited_control = true;
-var categories = [];
-$(document).on('ready',function(){
+var is_weighted;
+var categories = {};
 
-  var add_assignment_button = $('<input/>', { type: "button", id: "add_assignment_button", value: "Add New Assignment" });
-  $(ASSIGNMENT_TABLE_CSS_PATH).append(add_assignment_button);
+function getIsWeighted(){
+  return $(WEIGHTED_OR_UNWEIGHTED_CSS_PATH).text() === 'Weight:';
+}
+function addAssignmentButton(append_location){
+  var assignment_add_button = $('<input/>', { type: "button", id: "add_assignment_button", value: "Add New Assignment" });
+  $(append_location).append(assignment_add_button);
+}
+
+$(document).on('ready',function(){
+  is_weighted = getIsWeighted();
+  addAssignmentButton(ASSIGNMENT_TABLE_CSS_PATH);
 
 
   $(CATEGORIES_CSS_PATH).each(function(){
@@ -26,7 +36,7 @@ $(document).on('ready',function(){
     weight = parseFloat(weight)/100;
     category["weight"] = weight;
     category["score"] = $(this).find('td:nth-child(3)').text();
-    categories.push(category);
+    categories[category["name"]] = category;
   });
   var output = [];
   $.each(categories, function(idx, obj){
@@ -92,8 +102,13 @@ function calculateStuff(){      //Love you Andrew Carpenter
 function updateGrade(){
   var cur_points = {};
   var max_points = {};
+  var grade_weighted = 0;
+  var grade_unweighted = 0;
+  var cur_points_unweighted = 0;
+  var max_points_unweighted = 0;
+  var total_weight = 0;
   console.log(categories);
-  $(categories).each(function(idx, obj){
+  $.each(categories, function(idx, obj){
     console.log(obj);
     cur_points[obj["name"]] = 0;
     max_points[obj["name"]] = 0;
@@ -105,11 +120,11 @@ function updateGrade(){
     var max_score = $(assignment_table_score).find('form > input[type="number"]:nth-child(2)').val();
     var percent = $(assignment_table_score).find('form > div.assignment_percent');
     var category = $(this).find('td:nth-child(1) > div > form > select').val();
-    //console.log($('#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr:nth-child(3) > td:nth-child(1) > div > form > select').val());
+    var total_weight = 0;
     if(typeof category == 'undefined'){
       category = $(this).find('td:nth-child(1) > div').contents().get(0).nodeValue.trim();
     }
-    console.log(category);
+
 
 
     percent.text(((user_score/max_score) * 100).toFixed(2) + "%");
@@ -121,6 +136,7 @@ function updateGrade(){
     if(isNaN(max_score)){
       max_score = 0;
     }
+    console.log(user_score);
     cur_points[category] += user_score;
     max_points[category] += max_score;
   });
@@ -140,14 +156,35 @@ function updateGrade(){
   console.log(max_points);
 
 
+
+
+  $.each(cur_points, function(idx, obj){
+    console.log(obj);
+    console.log(idx);
+    console.log(categories[idx]);
+    cur_points_unweighted += obj;
+    max_points_unweighted += max_points[idx];
+    grade_weighted += categories[idx]["weight"] * (obj/max_points[idx]);
+    total_weight += categories[idx]["weight"];
+  });
+  grade_unweighted = (cur_points_unweighted/max_points_unweighted) * 100;
+  grade_weighted = (1.0/total_weight) * grade_weighted*100;
+  var final_grade;
+
+  if(is_weighted){
+    final_grade = grade_weighted;
+  } else{
+    final_grade = grade_unweighted;
+  }
   var grade_scale=['F', 'D-', 'D', 'D+', 'C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+'];
-  var grade = (cur_points/max_points) * 100;
-  var letter_grade = (grade-60)/3.33333333333333333333333;
+  //var grade = (cur_points_unweighted/max_points_unweighted) * 100;
+  var letter_grade = (final_grade-60)/3.33333333333333333333333;
   letter_grade = Math.min(letter_grade, grade_scale.length-1);
   letter_grade = Math.max(letter_grade, 0);
   letter_grade = Math.ceil(letter_grade);
 
-  $(CLASS_LETTER_GRADE_CSS_PATH).text(((cur_points/max_points) * 100).toFixed(2) + "%");
+  console.log(max_points);
+  $(CLASS_LETTER_GRADE_CSS_PATH).text((final_grade).toFixed(2) + "%");
   $(CLASS_NUMBER_GRADE_CSS_PATH).text(grade_scale[letter_grade]);
 
 }
