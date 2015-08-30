@@ -17,6 +17,71 @@ var is_weighted;      //change to weighted_status
 var categories = {};
 var category_name_list = [];
 
+//////////////////////////////////////////////////////////////////
+///////         Document On Ready      ///////////////////////////
+//////////////////////////////////////////////////////////////////
+$(document).on('ready',function(){
+  is_weighted = getIsWeighted();
+  createAssignmentAddButton(ASSIGNMENT_TABLE_CSS_PATH);
+
+
+  $(CATEGORIES_CSS_PATH).each(function(){
+    getCategoryInfo($(this));
+  });
+
+  var selection_list_categories = generateSelectionListCategories(categories);
+
+  $('#add_assignment_button').on('click', function(event){
+    createNewAssignment(ASSIGNMENT_TABLE_CSS_PATH, selection_list_categories);
+    $('#add_assignment_button').appendTo(ASSIGNMENT_TABLE_CSS_PATH);
+  });
+
+  $(ASSIGNMENT_TABLE_SCORE_CSS_PATH).each(function(){
+    createEditableOriginalAssignment($(this));
+  });
+
+  startUpdateGrade()
+});
+
+
+//////////////////////////////////////////////////////////////////
+///////         Update Grade   ///////////////////////////////////
+//////////////////////////////////////////////////////////////////
+
+function updateGrade(){
+  var user_points = initPointObjectCategories();
+  var max_points  = initPointObjectCategories();
+
+  $(ASSIGNMENT_TABLE_CSS_PATH +' > tr').each(function(){
+    var assignment = getAssignmentInfo($(this));
+    user_points[assignment['category']] += assignment['user_score'];
+    max_points[assignment['category']]  += assignment['max_score'];
+  });
+
+  var number_grade  = generateNumberGrade(user_points, max_points);
+  var letter_grade  = generateLetterGrade(number_grade);
+
+  $(CATEGORIES_CSS_PATH).each(function(){
+    updateCategoryScore($(this), user_points, max_points);
+  })
+  //$(category_element).find('td:nth-child(3)').text();
+
+  $(CLASS_LETTER_GRADE_CSS_PATH).text((number_grade).toFixed(2) + "%");
+  $(CLASS_NUMBER_GRADE_CSS_PATH).text(letter_grade);
+}
+
+function startUpdateGrade(){
+  //setInterval('updateGrade()', interval);
+  $(document).click(function(e) {
+    updateGrade();
+  });
+  $(document).keyup(function(e) {
+    e.preventDefault();
+    updateGrade();
+  });
+}
+
+
 function getIsWeighted(){
   return $(WEIGHTED_OR_UNWEIGHTED_CSS_PATH).text() === 'Weight:';
 }
@@ -70,7 +135,9 @@ function createEditableOriginalAssignment(assignment_element){
     <form>\
     <input type="number" name="score" style="width: 40px;" min="0"> /\
      <input type="number" name="max_score" style="width: 40px;" min="0"> \
-    <div class="assignment_percent" style="display:inline !important;"></div></form>');
+    <div class="assignment_percent" style="display:inline !important;"></div>\
+    </form>'
+    );
   if(limited_control && (score!=0 || max_score!=0)){
     $(assignment_element).find('input[name="max_score"]').prop('readonly', true);
     if($(assignment_element).closest('tr').hasClass('highlight')){
@@ -163,19 +230,6 @@ function initPointObjectCategories(){
    return points;
 }
 
-
-
-function startUpdateGrade(){
-  //setInterval('updateGrade()', interval);
-  $(document).click(function(e) {
-    updateGrade();
-  });
-  $(document).keyup(function(e) {
-    e.preventDefault();
-    updateGrade();
-  });
-}
-
 function findScores(text){
   if(text == null){
     return [0, 0];
@@ -212,56 +266,3 @@ function updateCategoryScore(category_element, user_points, max_points){
   $(category_element).find('td:last-child').text(grade.toFixed(2) + '%');
 }
 
-//////////////////////////////////////////////////////////////////
-///////         Update Grade   ///////////////////////////////////
-//////////////////////////////////////////////////////////////////
-
-function updateGrade(){
-  var user_points = initPointObjectCategories();
-  var max_points  = initPointObjectCategories();
-
-
-  $(ASSIGNMENT_TABLE_CSS_PATH +' > tr').each(function(){
-    var assignment = getAssignmentInfo($(this));
-    user_points[assignment['category']] += assignment['user_score'];
-    max_points[assignment['category']]  += assignment['max_score'];
-  });
-
-  var number_grade  = generateNumberGrade(user_points, max_points);
-  var letter_grade  = generateLetterGrade(number_grade);
-
-  $(CATEGORIES_CSS_PATH).each(function(){
-    updateCategoryScore($(this), user_points, max_points);
-  })
-  //$(category_element).find('td:nth-child(3)').text();
-
-  $(CLASS_LETTER_GRADE_CSS_PATH).text((number_grade).toFixed(2) + "%");
-  $(CLASS_NUMBER_GRADE_CSS_PATH).text(letter_grade);
-
-}
-
-//////////////////////////////////////////////////////////////////
-///////         Document On Ready      ///////////////////////////
-//////////////////////////////////////////////////////////////////
-$(document).on('ready',function(){
-  is_weighted = getIsWeighted();
-  createAssignmentAddButton(ASSIGNMENT_TABLE_CSS_PATH);
-
-
-  $(CATEGORIES_CSS_PATH).each(function(){
-    getCategoryInfo($(this));
-  });
-
-  var selection_list_categories = generateSelectionListCategories(categories);
-
-  $('#add_assignment_button').on('click', function(event){
-    createNewAssignment(ASSIGNMENT_TABLE_CSS_PATH, selection_list_categories);
-    $('#add_assignment_button').appendTo(ASSIGNMENT_TABLE_CSS_PATH);
-  });
-
-  $(ASSIGNMENT_TABLE_SCORE_CSS_PATH).each(function(){
-    createEditableOriginalAssignment($(this));
-  });
-
-  startUpdateGrade()
-});
