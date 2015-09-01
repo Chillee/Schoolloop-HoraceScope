@@ -23,7 +23,7 @@ var category_name_list = [];
 ///////         Document On Ready      ///////////////////////////
 //////////////////////////////////////////////////////////////////
 $(document).on('ready',function(){
-  console.log("version is: " + Version);
+  console.log("version is: " + VERSION);
   is_weighted = getIsWeighted();
   createAssignmentAddButton(ASSIGNMENT_TABLE_CSS_PATH);
 
