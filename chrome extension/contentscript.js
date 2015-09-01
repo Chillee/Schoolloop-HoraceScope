@@ -12,6 +12,8 @@ var CATEGORIES_CSS_PATH               = '#container_content > div.content_margin
 var WEIGHTED_OR_UNWEIGHTED_CSS_PATH   = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div:nth-child(3) > div.module_content > table > tbody > tr:nth-child(1) > td:nth-child(2)';
 
 var NEW_ASSIGNMENT_HTML = chrome.extension.getURL('new_assignment.html');
+
+var VERSION = "0.1";
 var limited_control = true;
 var is_weighted;      //change to weighted_status
 var categories = {};
@@ -21,6 +23,7 @@ var category_name_list = [];
 ///////         Document On Ready      ///////////////////////////
 //////////////////////////////////////////////////////////////////
 $(document).on('ready',function(){
+  console.log("version is: " + Version);
   is_weighted = getIsWeighted();
   createAssignmentAddButton(ASSIGNMENT_TABLE_CSS_PATH);
 
@@ -72,10 +75,10 @@ function updateGrade(){
 
 function startUpdateGrade(){
   //setInterval('updateGrade()', interval);
-  $(document).click(function(e) {
+  $(document).click(function(e){
     updateGrade();
   });
-  $(document).keyup(function(e) {
+  $(document).keyup(function(e){
     e.preventDefault();
     updateGrade();
   });
@@ -261,8 +264,7 @@ function todayDate() {
 
 function updateCategoryScore(category_element, user_points, max_points){
   var name = $(category_element).find('td.list_label_grey').text();
-  console.log(user_points[name]/max_points[name]);
+  //console.log(user_points[name]/max_points[name]);
   var grade = (user_points[name]/max_points[name]) * 100;
   $(category_element).find('td:last-child').text(grade.toFixed(2) + '%');
 }
-
