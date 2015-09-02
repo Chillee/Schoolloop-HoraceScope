@@ -5,18 +5,15 @@
 <body>
   <h1>Welcome to Meteor!</h1>
 
-  {{> hello}}
   {{> submitHTMLForm}}
+  <iframe id="gradebook" height=600 width=1200 scrolling="auto" style="-webkit-transform: translateZ(0);"></iframe>
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
-</template>
+
 
 <template name="submitHTMLForm">
   <form>
-  	<input type="text" name="userHTML">
+  	<input type="text" name="userHTML" style="width: 500px;">
   	<input type="submit" value="submit">
   </form>
 </template>
