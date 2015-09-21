@@ -8,7 +8,7 @@ var ASSIGNMENT_TABLE_CSS_PATH         = '#container_content > div.content_margin
 var CLASS_LETTER_GRADE_CSS_PATH       = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(4)';
 var CLASS_NUMBER_GRADE_CSS_PATH       = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(2)';
 
-var CATEGORIES_CSS_PATH               = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div:nth-child(3) > div.module_content > table > tbody > tr:nth-child(n+2)';
+var CATEGORIES_CSS_PATH               = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(n+2)';
 var WEIGHTED_OR_UNWEIGHTED_CSS_PATH   = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div:nth-child(3) > div.module_content > table > tbody > tr:nth-child(1) > td:nth-child(2)';
 
 var NEW_ASSIGNMENT_HTML = chrome.extension.getURL('new_assignment.html');

@@ -4,8 +4,21 @@ if (Meteor.isClient) {
     'submit form': function(event){
       event.preventDefault();
       var userHTML = event.target.userHTML.value;
-      $('#gradebook').contents().find('html').html(userHTML + '<script src="contentscript.js"></script>');
-      
+      var gradebookHTML = $('#gradebook').contents().find('html');
+      (function removeLink(){
+        if(gradebookHTML.find('#container_content').length){
+          gradebookHTML.find('a[href]').on('click', function(event){
+            event.preventDefault();
+          });
+          $.getScript('public/contentscript.js');
+        } else{
+          console.log('hi')
+          setTimeout(removeLink,100);
+        }
+      })();
+
+      gradebookHTML.html(userHTML);
+
     }
   });
 }
