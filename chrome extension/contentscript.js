@@ -238,14 +238,21 @@ function findScores(text){
     return [0, 0];
   }
   var scores = text;
+  // console.log(text);
   if(scores.indexOf("Excused") != -1){
     return [0, 0];
+  }
+  if(scores.indexOf("/")==-1 && scores.indexOf("-")!=-1){ //Extra Credit
+    var extra_points = scores.match(/:.*/g)[0].substring(1);
+   
+    return [extra_points, 0];
   }
   var grade1 = scores.match(/([0-9]|[" "]|[.])+((\/))/g);
   if(grade1 == null){
     return [0, 0];
   }
   grade1 = grade1[0];
+  console.log(grade1);
   var grade= grade1.substring(0, grade1.length-2);
 
   var grade2 = scores.match(/((\/))+([0-9]|[" "]|[.])*/g);
