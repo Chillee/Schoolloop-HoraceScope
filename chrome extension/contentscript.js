@@ -9,7 +9,7 @@ var CLASS_LETTER_GRADE_CSS_PATH       = '#container_content > div.content_margin
 var CLASS_NUMBER_GRADE_CSS_PATH       = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(2)';
 
 var CATEGORIES_CSS_PATH               = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(n+2)';
-var WEIGHTED_OR_UNWEIGHTED_CSS_PATH   = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div:nth-child(3) > div.module_content > table > tbody > tr:nth-child(1) > td:nth-child(2)';
+var WEIGHTED_OR_UNWEIGHTED_CSS_PATH   = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(1) > td:nth-child(2)';
 
 var NEW_ASSIGNMENT_HTML = chrome.extension.getURL('new_assignment.html');
 
@@ -36,7 +36,7 @@ $(document).on('ready',function(){
 
   $('#add_assignment_button').on('click', function(event){
     createNewAssignment(ASSIGNMENT_TABLE_CSS_PATH, selection_list_categories);
-    $('#add_assignment_button').appendTo(ASSIGNMENT_TABLE_CSS_PATH);
+    $('#add_assignment_button').prependTo(ASSIGNMENT_TABLE_CSS_PATH);
   });
 
   $(ASSIGNMENT_TABLE_SCORE_CSS_PATH).each(function(){
@@ -75,6 +75,7 @@ function updateGrade(){
 
 function startUpdateGrade(){
   //setInterval('updateGrade()', interval);
+  updateGrade();
   $(document).click(function(e){
     updateGrade();
   });
@@ -94,7 +95,7 @@ function createAssignmentAddButton(append_location){
                                               id: 'add_assignment_button',
                                               value: 'Add New Assignment'
                                             });
-  $(append_location).append(assignment_add_button);
+  $(append_location).prepend(assignment_add_button);
 }
 
 function getCategoryInfo(category_element){
@@ -118,9 +119,9 @@ function generateSelectionListCategories(category_list){
 }
 
 function createNewAssignment(append_location, selection_list_categories){
-    $(append_location).append($('<tr>').load(NEW_ASSIGNMENT_HTML, function(){
+    $(append_location).prepend($('<tr>').load(NEW_ASSIGNMENT_HTML, function(){
     $(append_location).find('.date').text("NEW");
-    $(append_location).find('.delete_assignment').last().on('click', function(event){
+    $(append_location).find('.delete_assignment').first().on('click', function(event){
       $(this).closest('tr').remove();
     });
     $(append_location).find('select[name="category_name"]').html(selection_list_categories.join(''));
@@ -131,6 +132,8 @@ function createEditableOriginalAssignment(assignment_element){
   var score=0;
   var max_score=0;
   var t = findScores($(assignment_element).text());
+  // console.log($(assignment_element).text());
+  console.log(t);
   score=t[0];
   max_score=t[1];
 
@@ -150,10 +153,10 @@ function createEditableOriginalAssignment(assignment_element){
   }
   var percent = $(assignment_element).find('form > div.assignment_percent');
 
-  $(assignment_element).find('input[name="score"]').val(parseInt(score));
+  $(assignment_element).find('input[name="score"]').val(parseFloat(score));
   $(assignment_element).find('input[name="score"]').text(score);
 
-  $(assignment_element).find('input[name="max_score"]').val(parseInt(max_score));
+  $(assignment_element).find('input[name="max_score"]').val(parseFloat(max_score));
   $(assignment_element).find('input[name="max_score"]').text(max_score);
 }
 
@@ -244,7 +247,7 @@ function findScores(text){
   }
   if(scores.indexOf("/")==-1 && scores.indexOf("-")!=-1){ //Extra Credit
     var extra_points = scores.match(/:.*/g)[0].substring(1);
-   
+
     return [extra_points, 0];
   }
   var grade1 = scores.match(/([0-9]|[" "]|[.])+((\/))/g);
@@ -252,7 +255,6 @@ function findScores(text){
     return [0, 0];
   }
   grade1 = grade1[0];
-  console.log(grade1);
   var grade= grade1.substring(0, grade1.length-2);
 
   var grade2 = scores.match(/((\/))+([0-9]|[" "]|[.])*/g);
