@@ -5,8 +5,8 @@ var ASSIGNMENT_TABLE_SCORE_CSS_PATH   = '#container_content > div.content_margin
 var ASSIGNMENT_TABLE_CSS_PATH         = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody';
 
 
-var CLASS_LETTER_GRADE_CSS_PATH       = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(4)';
-var CLASS_NUMBER_GRADE_CSS_PATH       = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(2)';
+var CLASS_NUMBER_GRADE_CSS_PATH       = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(4)';
+var CLASS_LETTER_GRADE_CSS_PATH       = '#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(2)';
 
 var CATEGORIES_CSS_PATH               = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(n+2)';
 var WEIGHTED_OR_UNWEIGHTED_CSS_PATH   = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(1) > td:nth-child(2)';
@@ -15,6 +15,7 @@ var NEW_ASSIGNMENT_HTML = chrome.extension.getURL('new_assignment.html');
 
 var VERSION = "0.1";
 var limited_control = true;
+var original_grade;
 var is_weighted;      //change to weighted_status
 var categories = {};
 var category_name_list = [];
@@ -26,7 +27,7 @@ $(document).on('ready',function(){
   console.log("version is: " + VERSION);
   is_weighted = getIsWeighted();
   createAssignmentAddButton(ASSIGNMENT_TABLE_CSS_PATH);
-
+  original_grade = $(CLASS_NUMBER_GRADE_CSS_PATH).text().substr(0, 4);
 
   $(CATEGORIES_CSS_PATH).each(function(){
     getCategoryInfo($(this));
@@ -64,13 +65,21 @@ function updateGrade(){
   var number_grade  = generateNumberGrade(user_points, max_points);
   var letter_grade  = generateLetterGrade(number_grade);
 
+
   $(CATEGORIES_CSS_PATH).each(function(){
     updateCategoryScore($(this), user_points, max_points);
   })
   //$(category_element).find('td:nth-child(3)').text();
 
-  $(CLASS_LETTER_GRADE_CSS_PATH).text((number_grade).toFixed(2) + "%");
-  $(CLASS_NUMBER_GRADE_CSS_PATH).text(letter_grade);
+  console.log(number_grade - original_grade)
+  if(Math.abs(number_grade - original_grade) < .1) {
+    $(CLASS_NUMBER_GRADE_CSS_PATH).text((number_grade).toFixed(2) + "%");
+  } else {
+    $(CLASS_NUMBER_GRADE_CSS_PATH).text((number_grade).toFixed(2) + "%" + "    " + "NOT ORIGINAL GRADE");
+  }
+
+  
+  $(CLASS_LETTER_GRADE_CSS_PATH).text(letter_grade);
 }
 
 function startUpdateGrade(){
