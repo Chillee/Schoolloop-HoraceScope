@@ -1,6 +1,6 @@
 {
-  "name": "Grade HoraceScope",
-  "version": "1.0",
+  "name": "School Loop HoraceScope",
+  "version": "0.2",
   "manifest_version": 2,
   "content_scripts": [{
       "matches": ["*://*.schoolloop.com/progress_report/*"],
@@ -8,6 +8,8 @@
       "css":        ["schoolloop.css"]
   }],
    "web_accessible_resources": [
-    "new_assignment.html"
+    "new_assignment.html",
+    "options.html",
+    "finals_assignment.html"
   ]
 }
